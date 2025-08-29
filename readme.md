@@ -14,6 +14,7 @@ The app allows users to sign up (via Email + OTP or Google OAuth), log in, and m
 ---
 
 ## 📂 Project Structure
+```bash
 note-taking-app/
 ├── frontend/ # React + Vite + Tailwind (TypeScript)
 ├── backend/ # Express server (TypeScript)
@@ -22,6 +23,7 @@ note-taking-app/
 
 yaml
 Copy code
+```
 
 ---
 
