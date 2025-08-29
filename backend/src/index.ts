@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth.routes"
+import "./config/passport"; //ensure passport stratergy is loaded
+
 dotenv.config();
 const app = express();
 app.use(cors());
