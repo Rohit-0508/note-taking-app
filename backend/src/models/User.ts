@@ -3,7 +3,8 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IUser extends Document {
     name: string;
     email: string;
-    password: string;
+    password?: string;
+    googleId?: string;
     otp?: string;
     otpExpires?: Date;
     isVerified: boolean;
@@ -26,7 +27,12 @@ const UserSchema: Schema<IUser> = new Schema(
         },
         password: {
             type: String,
-            required: true, // since login needs password
+            required: false, 
+        },
+        googleId:{
+            type: String,
+            required: false,
+            unique: true,
         },
         otp: {
             type: String,
