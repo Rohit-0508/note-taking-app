@@ -74,50 +74,53 @@ const LoginPage: React.FC = () => {
 
           {error && <div className="text-red-500 text-sm">{error}</div>}
 
-          <form onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
-            />
-
-            {/* OTP with eye toggle */}
-            <div className="relative">
+          <div>
+            <form onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
               <input
-                type={showOtp ? "text" : "password"}
-                placeholder="OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 w-full pr-10 text-base'
+                className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
               />
-              <button
-                type="button"
-                onClick={() => setShowOtp(!showOtp)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-              >
-                {showOtp ? <EyeOff size={20} /> : <Eye size={20} />}
+
+              {/* OTP with eye toggle */}
+              <div className="relative">
+                <input
+                  type={showOtp ? "text" : "password"}
+                  placeholder="OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                  className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 w-full pr-10 text-base'
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOtp(!showOtp)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showOtp ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              <span className='text-[#367AFF] underline text-base font-normal cursor-pointer'>
+                Resend OTP
+              </span>
+
+              <div>
+                <input type='checkbox' id="keep-logged-in" />
+                <label htmlFor="keep-logged-in" className='font-normal text-base ml-2'> Keep me logged in</label>
+              </div>
+
+              <button type="submit" disabled={isLoading} className='bg-[#367AFF] text-center text-white rounded-lg w-full pt-3 pb-3 md:pt-4 md:pb-4 text-base md:text-lg'>
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
-            </div>
+            </form>
+            <GoogleButton text="Sign in with Google" clickHandler={handleGoogleSignIn} />
+          </div>
 
-            <span className='text-[#367AFF] underline text-base font-normal cursor-pointer'>
-              Resend OTP
-            </span>
 
-            <div>
-              <input type='checkbox' id="keep-logged-in" />
-              <label htmlFor="keep-logged-in" className='font-normal text-base ml-2'> Keep me logged in</label>
-            </div>
-
-            <button type="submit" disabled={isLoading} className='bg-[#367AFF] text-center text-white rounded-lg w-full pt-3 pb-3 md:pt-4 md:pb-4 text-base md:text-lg'>
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
-
-          <GoogleButton text="Sign in with Google" clickHandler={handleGoogleSignIn} />
 
           <div className='flex w-full justify-center text-center'>
             <span className='text-base font-semibold text-[#6C6C6C]'>
