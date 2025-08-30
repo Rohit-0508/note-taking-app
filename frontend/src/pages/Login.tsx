@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
         };
 
         login(mappedUser, data.token); // store user + JWT
-        navigate('/'); // redirect to dashboard/home
+        navigate('/dashboard'); // redirect to dashboard/home
       }
       // Type guard: AuthError
       else if ('error' in data) {
