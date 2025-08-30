@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import NotesList from "../components/NotesList";
@@ -6,33 +6,14 @@ import CreateNotePopup from "../components/CreateNotePopup";
 import NotePopup from "../components/NotePopup";
 import { getNotes, addNote, deleteNote, type Note } from "../utils/notes";
 import { useNavigate } from "react-router-dom";
-
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-}
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, token, logout, isLoading } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  // load user + token from localStorage
-  useEffect(() => {
-    const storedUser = localStorage.getItem("auth_user");
-    const storedToken = localStorage.getItem("auth_token");
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
 
   // fetch notes from backend
   useEffect(() => {
@@ -73,10 +54,13 @@ const Dashboard: React.FC = () => {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    navigate('/login');
+    logout();
+    navigate("/login");
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen">
