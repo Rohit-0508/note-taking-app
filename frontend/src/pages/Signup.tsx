@@ -97,10 +97,11 @@ const SignupPage: React.FC = () => {
                                 />
                                 <input
                                     name="dateOfBirth"
-                                    type="date"
+                                    type="text"
                                     placeholder="Date of Birth"
                                     value={formData.dateOfBirth}
                                     onChange={handleChange}
+                                    onFocus={(e) => (e.currentTarget.type = "date")}
                                     required
                                     className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
                                 />
