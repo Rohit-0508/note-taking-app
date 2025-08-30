@@ -17,12 +17,10 @@ const SignupPage: React.FC = () => {
         dateOfBirth: '',
         email: '',
     });
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
-    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -37,37 +35,32 @@ const SignupPage: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+
         try {
             const { name, dateOfBirth, email } = formData;
-            const data = await registerUser(name, email, dateOfBirth);
 
-            // Type guard: AuthSuccess
-            if ('user' in data && data.user && data.token) {
-                // Map API user to match IUser if needed
-                const mappedUser = {
-                    ...data.user,
-                    _id: data.user.id,       // map 'id' to '_id'
-                    email: data.user.email,
-                    name: data.user.name || '',
-                    isVerified: true,       // assume verified after signup
-                };
+            // Call the updated registerUser (OTP-based)
+            const data = await registerUser(name, dateOfBirth, email);
 
-                login(mappedUser, data.token);
-                navigate('/');
-            }
-            // Type guard: AuthError
-            else if ('error' in data) {
-                setError(data.error || 'Registration failed. No user returned.');
+            // Check if signup was successful
+            if ('message' in data) {
+                // Clear form
+                setFormData({ name: '', dateOfBirth: '', email: '' });
+
+                // Redirect to login
+                navigate('/login');
             } else {
                 setError('Registration failed. Unknown error.');
             }
         } catch (err: any) {
             console.error(err);
-            setError(err.response?.data?.error || 'Registration failed. Please try again.');
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
+
+
 
     const handleGoogleSignUp = () => {
         window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;

@@ -13,21 +13,31 @@ interface AuthSuccess {
 
 interface AuthError {
   message: string;
-  error: any;
+  error?: any;
 }
 
 export type AuthResponse = AuthSuccess | AuthError;
 
-export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>('/auth/login', { email, password });
-  return response.data;
+// ✅ Login with email + OTP
+export const loginUser = async (email: string, otp: string): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthSuccess>('/auth/login', { email, otp });
+    return response.data;
+  } catch (err: any) {
+    return { message: err.response?.data?.message || 'Login failed', error: err };
+  }
 };
 
+// ✅ Signup with name, dob, email (OTP is auto-generated)
 export const registerUser = async (
   name: string,
-  email: string,
-  password: string
+  dob: string, // pass as string (ISO date) from frontend
+  email: string
 ): Promise<AuthResponse> => {
-  const res = await api.post<AuthResponse>('/auth/signup', { name, email, password });
-  return res.data;
+  try {
+    const res = await api.post<AuthSuccess>('/auth/signup', { name, dob, email });
+    return res.data;
+  } catch (err: any) {
+    return { message: err.response?.data?.message || 'Signup failed', error: err };
+  }
 };

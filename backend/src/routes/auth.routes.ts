@@ -2,7 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import { generateToken } from "../utils/jwt";
-import { signup, verifyOtp, login } from "../controllers/auth.controller";
+import { signup, login } from "../controllers/auth.controller";
 import "../config/passport"; //ensure passport stratergy is loaded
 
 import dotenv from "dotenv";
@@ -13,7 +13,6 @@ const router = Router();
 
 // Email/Password auth
 router.post("/signup", signup);
-router.post("/verify-otp", verifyOtp);
 router.post("/login", login);
 
 // Google OAuth

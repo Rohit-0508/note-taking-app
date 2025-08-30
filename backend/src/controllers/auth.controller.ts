@@ -1,128 +1,78 @@
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User from "../models/User";
-import { generateToken } from "../utils/jwt"
+import { generateToken } from "../utils/jwt";
 import mongoose from "mongoose";
-// Signup Controller
+
+import { sendEmail } from "../config/sendGrid";
+
 export const signup = async (req: Request, res: Response) => {
-    try {
-        const { name, email, password } = req.body;
+  try {
+    const { name, email, dob } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        // check if user exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
-        }
-
-        // hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // generate OTP (6-digit)
-        const otp = crypto.randomInt(100000, 999999).toString();
-        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min validity
-
-        // create user
-        const user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            otp,
-            otpExpires,
-        });
-
-        await user.save();
-
-        // TODO: send OTP via email (nodemailer will come later)
-        console.log(`OTP for ${email}: ${otp}`);
-
-        return res.status(201).json({
-            message: "User registered. Please verify your email with OTP.",
-        });
-    } catch (error) {
-        console.error("Signup Error:", error);
-        return res.status(500).json({ message: "Server error", error });
+    if (!name || !email || !dob) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+
+    // check if user exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // generate permanent OTP (6-digit)
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // create user with OTP
+    user = new User({ name, email, dob, otp });
+    await user.save();
+
+    // send OTP via email
+    await sendEmail({
+      to: email,
+      subject: "Your Signup OTP Code",
+      text: `Hello ${name},\n\nYour OTP code is ${otp}.`,
+      html: `<p>Hello <strong>${name}</strong>,</p>
+             <p>Your OTP code is: <h2>${otp}</h2></p>
+             <p>This code is valid for signup verification.</p>`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Signup successful. OTP has been sent to your email.",
+    });
+  } catch (error) {
+    console.error("Signup Error:", error);
+    return res.status(500).json({ message: "Server error", error });
+  }
 };
 
-
-// Verify OTP Controller
-export const verifyOtp = async (req: Request, res: Response) => {
+// Login Controller
+export const login = async (req: Request, res: Response) => {
     try {
         const { email, otp } = req.body;
 
-        // find user
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Email and OTP are required" });
+        }
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: "User not found" });
         }
 
-        // check if already verified
-        if (user.isVerified) {
-            return res.status(400).json({ message: "User already verified" });
+        if (user.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
         }
 
-        // check OTP + expiry
-        if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
-        }
-
-        // update user as verified
-        user.isVerified = true;
-        user.otp = undefined;
-        user.otpExpires = undefined;
-        await user.save();
-
-        const token = generateToken((user._id as mongoose.Types.ObjectId).toString());
-
-        return res.status(200).json({ message: "Account verified successfully!", token, user: { id: user._id, name: user.name, email: user.email } });
-    } catch (error) {
-        console.error("OTP Verification Error:", error);
-        return res.status(500).json({ message: "Server error", error });
-    }
-};
-
-
-// Login Controller
-export const login = async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        // find user
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid email or password" });
-        }
-
-        // check if verified
-        if (!user.isVerified) {
-            return res.status(400).json({ message: "Please verify your email first" });
-        }
-        if (!user.password) {
-            return res.status(400).json({ message: "Password login not available for this user. Login with Google." });
-        }
-
-        // check password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid email or password" });
-        }
-
-        // generate JWT
+        // OTP is valid, generate JWT
         const token = generateToken((user._id as mongoose.Types.ObjectId).toString());
 
         return res.status(200).json({
+            success: true,
             message: "Login successful",
             token,
-            user: { id: user._id, name: user.name, email: user.email }
+            user: { id: user._id, name: user.name, email: user.email, dob: user.dob },
         });
     } catch (error) {
         console.error("Login Error:", error);

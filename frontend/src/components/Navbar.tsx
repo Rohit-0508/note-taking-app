@@ -7,7 +7,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignOut }) => {
   return (
     <div className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 w-full">
       <div className="flex items-center gap-2">
-        <img src={hdimage} alt="logo" className="w-7 h-7 sm:w-8 sm:h-8" />
+        <img src={hdimage} alt="logo" className="w-10 h-7 sm:w-8 sm:h-8" />
         <h1
           className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl"
           style={{ fontSize: "clamp(1.2rem, 2.1vw, 2.1rem)" }}
