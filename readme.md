@@ -5,6 +5,12 @@ The app allows users to sign up (via Email + OTP or Google OAuth), log in, and m
 
 ---
 
+## 🚀 Live Demo
+
+🌐 [View Website on Netlify](https://fabulous-sprite-2b10dc.netlify.app/)
+
+---
+
 ## 🚀 Tech Stack
 - **Frontend:** React (Vite) + TypeScript + TailwindCSS
 - **Backend:** Express + TypeScript
