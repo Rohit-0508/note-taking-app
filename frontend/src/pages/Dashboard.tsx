@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
   const handleSignOut = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
-    navigate('/');
+    navigate('/login');
   };
 
   return (
