@@ -1,9 +1,131 @@
-import React from 'react'
+import { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
+import UserCard from "../components/UserCard";
+import NotesList from "../components/NotesList";
+import CreateNotePopup from "../components/CreateNotePopup";
+import NotePopup from "../components/NotePopup";
+import { getNotes, addNote, deleteNote, type Note } from "../utils/notes";
 
-const Dashboard = () => {
-  return (
-    <div>Dashboard</div>
-  )
+interface User {
+  _id: string;
+  name: string;
+  email: string;
 }
 
-export default Dashboard
+const Dashboard: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [showCreatePopup, setShowCreatePopup] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  // load user + token from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem("auth_user");
+    const storedToken = localStorage.getItem("auth_token");
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
+  // fetch notes from backend
+  useEffect(() => {
+    const fetchNotes = async () => {
+      if (!token) return;
+      try {
+        const data = await getNotes(token);
+        setNotes(data);
+      } catch (err) {
+        console.error("Failed to fetch notes", err);
+      }
+    };
+    fetchNotes();
+  }, [token]);
+
+  const handleCreateNote = async (title: string, content: string) => {
+    if (!token) return;
+    try {
+      const newNote = await addNote(title, content, token);
+      setNotes((prev) => [...prev, newNote]);
+      setShowCreatePopup(false);
+    } catch (err) {
+      console.error("Failed to create note", err);
+    }
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    if (!token) return;
+    try {
+      await deleteNote(id, token);
+      setNotes((prev) => prev.filter((n) => n._id !== id));
+      if (selectedNote?._id === id) {
+        setSelectedNote(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete note", err);
+    }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    window.location.href = "/login";
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar with signout */}
+      <Navbar onSignOut={handleSignOut} />
+
+      <div className="p-2 sm:p-4 md:p-6 flex flex-col items-center">
+        {/* User info */}
+        {user && <UserCard name={user.name} email={user.email} />}
+
+        {/* Create Note Button */}
+        <button
+          onClick={() => setShowCreatePopup(true)}
+          className="w-full max-w-xl mt-4 px-3 py-2 sm:px-4 sm:py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 text-base sm:text-lg font-semibold transition"
+        >
+          Create Note
+        </button>
+
+        {/* Notes section header */}
+        <div className="w-full max-w-xl mt-8 mb-2 px-1 sm:px-0">
+          <h2 className="text-xl sm:text-2xl font-semibold">Notes</h2>
+        </div>
+
+        {/* Notes List */}
+        <div className="w-full max-w-xl">
+          <NotesList
+            notes={notes}
+            onOpen={(note) => setSelectedNote(note)}
+            onDelete={handleDeleteNote}
+          />
+        </div>
+      </div>
+
+      {/* Create Note Popup */}
+      {showCreatePopup && (
+        <CreateNotePopup
+          onSave={handleCreateNote}
+          onClose={() => setShowCreatePopup(false)}
+        />
+      )}
+
+      {/* Note Details Popup */}
+      {selectedNote && (
+        <NotePopup
+          title={selectedNote.title}
+          content={selectedNote.content}
+          onClose={() => setSelectedNote(null)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;

@@ -75,24 +75,24 @@ const SignupPage: React.FC = () => {
 
     return (
         <>
-            <div className="min-h-screen max-h-screen flex">
+            <div className="min-h-screen max-h-screen flex flex-col md:flex-row">
                 {/* Left Side - Form */}
-                <div className="w-1/2 max-h-screen flex flex-col justify-center items-center bg-white p-8 relative lg:gap-[200px]">
+                <div className="w-full lg:w-1/2 max-h-screen flex flex-col justify-center items-center bg-white px-4 py-8 md:p-8 relative lg:gap-[200px]">
                     {/* Top left corner text/logo */}
-                    <div className='h-8 w-full flex items-center justify-start '>
+                    <div className='h-8 w-full flex items-center justify-center md:justify-start mb-8 md:mb-0'>
                         <img src={hdImage} className='h-8 w-8' />
-                        <span className='font-semibold text-2xl '>HD</span>
+                        <span className='font-semibold text-2xl ml-2'>HD</span>
                     </div>
 
                     {/* Form content */}
-                    <div className="flex flex-col gap-8 w-full max-w-md pl-16 pr-16">
+                    <div className="flex flex-col justify-center items-center gap-8 w-full max-w-md px-0 md:px-16">
                         <div>
-                            <h2 className='font-bold text-[40px]'>Sign up</h2>
-                            <p className='font-normal text-lg text-[#969696]'>Sign up to enjoy the feature of HD</p>
+                            <h2 className='w-full font-bold text-[2rem] md:text-[40px] text-center md:text-left'>Sign up</h2>
+                            <p className='w-full font-normal text-base md:text-lg text-[#969696] text-center md:text-left'>Sign up to enjoy the feature of HD</p>
                         </div>
 
-                        <div>
-                            <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
+                        <div className="w-full">
+                            <form onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
                                 <input
                                     name="name"
                                     type="text"
@@ -100,16 +100,16 @@ const SignupPage: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                    className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
                                 />
                                 <input
-                                    name="Date of Birth"
+                                    name="dateOfBirth"
                                     type="date"
                                     placeholder="Date of Birth"
                                     value={formData.dateOfBirth}
                                     onChange={handleChange}
                                     required
-                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                    className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
                                 />
                                 <input
                                     name="email"
@@ -118,24 +118,23 @@ const SignupPage: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                    className='border border-[#D9D9D9] rounded-xl p-3 md:p-4 text-base'
                                 />
 
-                                <button type="submit" disabled={isLoading} className='bg-[#367AFF] text-center text-white rounded-lg w-full pt-4 pb-4'>
+                                <button type="submit" disabled={isLoading} className='bg-[#367AFF] text-center text-white rounded-lg w-full pt-3 pb-3 md:pt-4 md:pb-4 text-base md:text-lg'>
                                     {isLoading ? 'Sending OTP...' : 'Get OTP'}
                                 </button>
                             </form>
                             <GoogleButton text="Sign up with Google" clickHandler={handleGoogleSignUp} />
                         </div>
                         <div className='flex w-full justify-center text-center'>
-                            <span className='text-base font-semibold text-[#6C6C6C]'>Already have an account?? <Link to='/login' className='text-[#367AFF] underline'>Sign In</Link></span>
+                            <span className='text-base font-semibold text-[#6C6C6C]'>Already have an account? <Link to='/login' className='text-[#367AFF] underline'>Sign In</Link></span>
                         </div>
-
                     </div>
                 </div>
 
                 {/* Right Side - Image */}
-                <div className="w-1/2 p-3">
+                <div className="hidden md:block w-1/2 p-3">
                     <img src={authImage} alt="Signup Illustration" className="w-full h-full object-cover rounded-xl" />
                 </div>
             </div>
