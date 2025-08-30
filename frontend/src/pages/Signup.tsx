@@ -1,0 +1,146 @@
+import React, { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { registerUser } from '../utils/authentication';
+import GoogleButton from '../components/GoogleButton';
+import authImage from '../assets/authImage.jpg'
+import hdImage from '../assets/hdImage.png'
+interface SignupFormData {
+    name: string;
+    dateOfBirth: string;
+    email: string;
+}
+
+const SignupPage: React.FC = () => {
+    const [formData, setFormData] = useState<SignupFormData>({
+        name: '',
+        dateOfBirth: '',
+        email: '',
+    });
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
+        try {
+            const { name, dateOfBirth, email } = formData;
+            const data = await registerUser(name, email, dateOfBirth);
+
+            // Type guard: AuthSuccess
+            if ('user' in data && data.user && data.token) {
+                // Map API user to match IUser if needed
+                const mappedUser = {
+                    ...data.user,
+                    _id: data.user.id,       // map 'id' to '_id'
+                    email: data.user.email,
+                    name: data.user.name || '',
+                    isVerified: true,       // assume verified after signup
+                };
+
+                login(mappedUser, data.token);
+                navigate('/');
+            }
+            // Type guard: AuthError
+            else if ('error' in data) {
+                setError(data.error || 'Registration failed. No user returned.');
+            } else {
+                setError('Registration failed. Unknown error.');
+            }
+        } catch (err: any) {
+            console.error(err);
+            setError(err.response?.data?.error || 'Registration failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleSignUp = () => {
+        window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
+    };
+
+    return (
+        <>
+            <div className="min-h-screen max-h-screen flex">
+                {/* Left Side - Form */}
+                <div className="w-1/2 max-h-screen flex flex-col justify-center items-center bg-white p-8 relative lg:gap-[200px]">
+                    {/* Top left corner text/logo */}
+                    <div className='h-8 w-full flex items-center justify-start '>
+                        <img src={hdImage} className='h-8 w-8' />
+                        <span className='font-semibold text-2xl '>HD</span>
+                    </div>
+
+                    {/* Form content */}
+                    <div className="flex flex-col gap-8 w-full max-w-md pl-16 pr-16">
+                        <div>
+                            <h2 className='font-bold text-[40px]'>Sign up</h2>
+                            <p className='font-normal text-lg text-[#969696]'>Sign up to enjoy the feature of HD</p>
+                        </div>
+
+                        <div>
+                            <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
+                                <input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                />
+                                <input
+                                    name="Date of Birth"
+                                    type="date"
+                                    placeholder="Date of Birth"
+                                    value={formData.dateOfBirth}
+                                    onChange={handleChange}
+                                    required
+                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                />
+                                <input
+                                    name="email"
+                                    type="email"
+                                    placeholder="Email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    className='border border-[#D9D9D9] rounded-xl p-4'
+                                />
+
+                                <button type="submit" disabled={isLoading} className='bg-[#367AFF] text-center text-white rounded-lg w-full pt-4 pb-4'>
+                                    {isLoading ? 'Sending OTP...' : 'Get OTP'}
+                                </button>
+                            </form>
+                            <GoogleButton text="Sign up with Google" clickHandler={handleGoogleSignUp} />
+                        </div>
+                        <div className='flex w-full justify-center text-center'>
+                            <span className='text-base font-semibold text-[#6C6C6C]'>Already have an account?? <Link to='/login' className='text-[#367AFF] underline'>Sign In</Link></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* Right Side - Image */}
+                <div className="w-1/2 p-3">
+                    <img src={authImage} alt="Signup Illustration" className="w-full h-full object-cover rounded-xl" />
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default SignupPage;
