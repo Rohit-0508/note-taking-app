@@ -32,7 +32,7 @@ router.get(
     const encodedUser = encodeURIComponent(JSON.stringify(user));
 
     // Redirect to frontend with JWT and user data
-    res.redirect(`${frontendURL}?token=${token}&user=${encodedUser}`);
+    res.redirect(`${frontendURL}/dashboard?token=${token}&user=${encodedUser}`);
   }
 );
 
