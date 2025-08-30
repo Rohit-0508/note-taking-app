@@ -5,6 +5,7 @@ import NotesList from "../components/NotesList";
 import CreateNotePopup from "../components/CreateNotePopup";
 import NotePopup from "../components/NotePopup";
 import { getNotes, addNote, deleteNote, type Note } from "../utils/notes";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -18,6 +19,7 @@ const Dashboard: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // load user + token from localStorage
   useEffect(() => {
@@ -73,7 +75,7 @@ const Dashboard: React.FC = () => {
   const handleSignOut = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
-    window.location.href = "/login";
+    navigate('/');
   };
 
   return (
